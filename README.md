@@ -1,8 +1,9 @@
 --[[
-    Monarch AFK - Anti-AFK Tool
-    Por ANDSONBETA + Copilot
+    MonarcK - Anti-AFK Tool + Hit-Me + ESP-Gays (Box) + Rafael Jumpscare
+    Por monarch
     Interface moderna, arrastável, compacta, com créditos em destaque.
     Coloque este LocalScript no StarterGui.
+    Créditos limpos!
 ]]
 
 local Players = game:GetService("Players")
@@ -12,7 +13,7 @@ local LocalPlayer = Players.LocalPlayer
 
 -- GUI Setup
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "MonarchAFK_UI"
+ScreenGui.Name = "MonarcK_UI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
@@ -59,7 +60,7 @@ MainFrame.Name = "MainFrame"
 MainFrame.BackgroundColor3 = Color3.fromRGB(32, 24, 48)
 MainFrame.BackgroundTransparency = 0.18
 MainFrame.Position = UDim2.new(0, 80, 0.34, 0)
-MainFrame.Size = UDim2.new(0, 220, 0, 140)
+MainFrame.Size = UDim2.new(0, 220, 0, 242)
 MainFrame.Visible = false
 MainFrame.AnchorPoint = Vector2.new(0,0)
 MainFrame.Active = true
@@ -77,32 +78,64 @@ MainStroke.Parent = MainFrame
 -- Título
 local Title = Instance.new("TextLabel")
 Title.Name = "Title"
-Title.Text = "Monarch AFK"
-Title.Font = Enum.Font.FredokaOne
+Title.Text = "MonarcK"
+Title.Font = Enum.Font.Arcade -- Minecraft-like font
 Title.TextColor3 = Color3.fromRGB(190, 80, 255)
-Title.TextStrokeTransparency = 0.28
+Title.TextStrokeTransparency = 0.18
+Title.TextStrokeColor3 = Color3.fromRGB(0,0,0)
 Title.TextSize = 28
 Title.BackgroundTransparency = 1
 Title.Size = UDim2.new(1, 0, 0, 38)
 Title.Position = UDim2.new(0, 0, 0, 4)
 Title.Parent = MainFrame
 
--- Botão AFK
-local AFKBtn = Instance.new("TextButton")
-AFKBtn.Name = "AFKBtn"
-AFKBtn.Text = "Ativar Anti-AFK"
-AFKBtn.Font = Enum.Font.GothamBold
-AFKBtn.TextSize = 17
-AFKBtn.TextColor3 = Color3.fromRGB(255,255,255)
-AFKBtn.BackgroundColor3 = Color3.fromRGB(140, 65, 205)
-AFKBtn.BackgroundTransparency = 0.13
-AFKBtn.BorderSizePixel = 0
-AFKBtn.Size = UDim2.new(1, -36, 0, 38)
-AFKBtn.Position = UDim2.new(0, 18, 0, 48)
-local BtnCorner = Instance.new("UICorner")
-BtnCorner.CornerRadius = UDim.new(0, 14)
-BtnCorner.Parent = AFKBtn
-AFKBtn.Parent = MainFrame
+-- Função para criar botões de função bonitos e destacados
+local function createFunctionButton(name, text, yPos, color, font, parent)
+    local btn = Instance.new("TextButton")
+    btn.Name = name
+    btn.Text = text
+    btn.Font = font or Enum.Font.FredokaOne
+    btn.TextSize = 20
+    btn.TextColor3 = Color3.fromRGB(255,255,255)
+    btn.TextStrokeTransparency = 0.2
+    btn.TextStrokeColor3 = Color3.fromRGB(100,0,100)
+    btn.BackgroundColor3 = color
+    btn.BackgroundTransparency = 0.10
+    btn.BorderSizePixel = 0
+    btn.Size = UDim2.new(1, -36, 0, 36)
+    btn.Position = UDim2.new(0, 18, 0, yPos)
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 14)
+    btnCorner.Parent = btn
+    btn.Parent = parent
+    return btn
+end
+
+-- Botão AFK (Fonte FredokaOne, destacado)
+local AFKBtn = createFunctionButton(
+    "AFKBtn", "Ativar Anti-AFK", 48, 
+    Color3.fromRGB(140, 65, 205), Enum.Font.FredokaOne, MainFrame
+)
+
+-- Botão Hit-Me (reset) (Fonte GothamBlack, destacado)
+local HitMeBtn = createFunctionButton(
+    "HitMeBtn", "Hit-Me (Resetar)", 92, 
+    Color3.fromRGB(200, 65, 120), Enum.Font.GothamBlack, MainFrame
+)
+
+-- Botão ESP-Gays (Fonte FredokaOne, destacado)
+local EspGaysBtn = createFunctionButton(
+    "EspGaysBtn", "ESP-Gays", 136, 
+    Color3.fromRGB(255, 30, 30), Enum.Font.FredokaOne, MainFrame
+)
+
+-- Botão Rafael (Fonte Arcade, destacado)
+local RafaelBtn = createFunctionButton(
+    "Rafael", "Rafael", 180, 
+    Color3.fromRGB(60,0,0), Enum.Font.Arcade, MainFrame
+)
+RafaelBtn.TextStrokeTransparency = 0.08
+RafaelBtn.TextSize = 22
 
 -- Status
 local Status = Instance.new("TextLabel")
@@ -113,11 +146,11 @@ Status.TextSize = 13
 Status.TextColor3 = Color3.fromRGB(210,180,255)
 Status.BackgroundTransparency = 1
 Status.Size = UDim2.new(1, -20, 0, 18)
-Status.Position = UDim2.new(0, 10, 0, 92)
+Status.Position = UDim2.new(0, 10, 0, 220)
 Status.TextXAlignment = Enum.TextXAlignment.Center
 Status.Parent = MainFrame
 
--- Créditos
+-- Créditos (GothamBlack, tradicional, sem nada atrás)
 local Credits = Instance.new("TextLabel")
 Credits.Text = "Feito por monarch (andson)"
 Credits.Font = Enum.Font.GothamBlack
@@ -199,4 +232,122 @@ AFKBtn.MouseButton1Click:Connect(function()
     else
         if antiAFKConnection then antiAFKConnection:Disconnect() end
     end
+end)
+
+-- Hit-Me: Resetar personagem
+HitMeBtn.MouseButton1Click:Connect(function()
+    local char = LocalPlayer.Character
+    if char and char:FindFirstChildOfClass("Humanoid") then
+        char:FindFirstChildOfClass("Humanoid").Health = 0
+        Status.Text = "Personagem resetado!"
+    else
+        Status.Text = "Não foi possível resetar."
+    end
+end)
+
+-- ESP-Gays (BOX: nome branco pequeno + box em todos os parts do personagem)
+local espEnabled = false
+local ESPFolder = Instance.new("Folder")
+ESPFolder.Name = "ESPFolder"
+ESPFolder.Parent = ScreenGui
+
+local function clearESP()
+    for _,v in pairs(ESPFolder:GetChildren()) do
+        v:Destroy()
+    end
+end
+
+local function createESPBox(part)
+    local adorn = Instance.new("BoxHandleAdornment")
+    adorn.Name = "ESPBox"
+    adorn.Adornee = part
+    adorn.AlwaysOnTop = true
+    adorn.ZIndex = 10
+    adorn.Size = part.Size
+    adorn.Color3 = Color3.fromRGB(255,0,0)
+    adorn.Transparency = 0.7
+    adorn.Parent = ESPFolder
+end
+
+local function createESPForPlayer(plr)
+    if plr == LocalPlayer then return end
+    local char = plr.Character
+    if not char then return end
+    -- Nome branco e menor acima da cabeça
+    if char:FindFirstChild("Head") then
+        local billboard = Instance.new("BillboardGui")
+        billboard.Name = "MonarchESP"
+        billboard.Adornee = char.Head
+        billboard.Size = UDim2.new(0, 70, 0, 13)
+        billboard.StudsOffset = Vector3.new(0, 2, 0)
+        billboard.AlwaysOnTop = true
+        billboard.Parent = ESPFolder
+
+        local nameLabel = Instance.new("TextLabel")
+        nameLabel.BackgroundTransparency = 1
+        nameLabel.Size = UDim2.new(1, 0, 1, 0)
+        nameLabel.Text = plr.Name
+        nameLabel.Font = Enum.Font.GothamBold
+        nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        nameLabel.TextStrokeTransparency = 0.6
+        nameLabel.TextScaled = true
+        nameLabel.Parent = billboard
+    end
+    -- Box vermelha em todas as hitboxes (Parts)
+    for _,p in ipairs(char:GetChildren()) do
+        if p:IsA("BasePart") then
+            createESPBox(p)
+        end
+    end
+end
+
+local function updateESP()
+    clearESP()
+    for _,plr in ipairs(Players:GetPlayers()) do
+        createESPForPlayer(plr)
+    end
+end
+
+EspGaysBtn.MouseButton1Click:Connect(function()
+    espEnabled = not espEnabled
+    EspGaysBtn.Text = espEnabled and "ESP-Gays (ON)" or "ESP-Gays"
+    Status.Text = espEnabled and "ESP-Gays Ativado!" or "ESP-Gays Desativado."
+    if not espEnabled then
+        clearESP()
+    else
+        updateESP()
+    end
+end)
+Players.PlayerAdded:Connect(function() if espEnabled then updateESP() end end)
+Players.PlayerRemoving:Connect(function() if espEnabled then updateESP() end end)
+Players.PlayerAdded:Connect(function(plr) plr.CharacterAdded:Connect(function() if espEnabled then updateESP() end end) end)
+
+-- Rafael: jumpscare, trava tela e fecha script
+RafaelBtn.MouseButton1Click:Connect(function()
+    -- Jumpscare overlay
+    local jumpscareFrame = Instance.new("Frame")
+    jumpscareFrame.BackgroundColor3 = Color3.fromRGB(255,0,0)
+    jumpscareFrame.BackgroundTransparency = 0
+    jumpscareFrame.Size = UDim2.new(1,0,1,0)
+    jumpscareFrame.Position = UDim2.new(0,0,0,0)
+    jumpscareFrame.Parent = ScreenGui
+    jumpscareFrame.ZIndex = 9999
+
+    local jumpscareLabel = Instance.new("TextLabel")
+    jumpscareLabel.Text = "RAFAEL!!!!"
+    jumpscareLabel.Font = Enum.Font.Arcade
+    jumpscareLabel.TextSize = 85
+    jumpscareLabel.TextColor3 = Color3.new(1,1,1)
+    jumpscareLabel.TextStrokeColor3 = Color3.new(0,0,0)
+    jumpscareLabel.TextStrokeTransparency = 0.3
+    jumpscareLabel.BackgroundTransparency = 1
+    jumpscareLabel.Size = UDim2.new(1,0,1,0)
+    jumpscareLabel.Position = UDim2.new(0,0,0,0)
+    jumpscareLabel.ZIndex = 10000
+    jumpscareLabel.Parent = jumpscareFrame
+
+    -- Congela tela (Remove tudo)
+    wait(1.1)
+    ScreenGui:Destroy()
+    if ESPFolder then pcall(function() ESPFolder:Destroy() end) end
 end)
