@@ -600,6 +600,172 @@ end
 
 ------------------ HUB 3 e HUB 4 (créditos) ------------------
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Variável global para armazenar o jogador selecionado
+local selectedPlayer = nil
+
+-- FRAME DA LISTA DE PLAYERS (em Tabs[3])
+local plFrame = Instance.new("Frame", Tabs[3])
+plFrame.Position = UDim2.new(0, 10, 0, 60)
+plFrame.Size = UDim2.new(0, 180, 0, 145)
+plFrame.BackgroundColor3 = Color3.fromRGB(50, 60, 70)
+plFrame.BorderSizePixel = 0
+local plCorner = Instance.new("UICorner", plFrame)
+plCorner.CornerRadius = UDim.new(0, 10)
+plFrame.ZIndex = 2
+
+-- SCROLLING FRAME
+local plList = Instance.new("ScrollingFrame", plFrame)
+plList.Size = UDim2.new(1, 0, 1, -32)
+plList.Position = UDim2.new(0, 0, 0, 0)
+plList.BackgroundTransparency = 1
+plList.BorderSizePixel = 0
+plList.ScrollBarThickness = 7
+plList.CanvasSize = UDim2.new(0, 0, 0, 0)
+plList.ZIndex = 2
+
+-- FUNÇÃO DE ATUALIZAÇÃO DOS PLAYERS
+local function refreshPlayers()
+    for _, c in ipairs(plList:GetChildren()) do
+        if c:IsA("TextButton") then c:Destroy() end
+    end
+
+    local n = 0
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer then
+            local btn = Instance.new("TextButton", plList)
+            btn.Size = UDim2.new(1, -8, 0, 28)
+            btn.Position = UDim2.new(0, 4, 0, 4 + n * 32)
+            btn.BackgroundColor3 = Color3.fromRGB(50, 150, 90)
+            btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            btn.Text = p.Name
+            btn.Font = Enum.Font.GothamBold
+            btn.TextSize = 15
+            btn.BorderSizePixel = 0
+            local btnCorner = Instance.new("UICorner", btn)
+            btnCorner.CornerRadius = UDim.new(0, 7)
+
+            btn.MouseButton1Click:Connect(function()
+                selectedPlayer = p
+                for _, b in ipairs(plList:GetChildren()) do
+                    if b:IsA("TextButton") then
+                        b.BackgroundColor3 = Color3.fromRGB(50, 150, 90)
+                    end
+                end
+                btn.BackgroundColor3 = Color3.fromRGB(70, 255, 90)
+            end)
+
+            n = n + 1
+        end
+    end
+
+    plList.CanvasSize = UDim2.new(0, 0, 0, math.max(0, 4 + n * 32))
+end
+
+refreshPlayers()
+
+-- BOTÃO REFRESH
+local refreshBtn = Instance.new("TextButton", plFrame)
+refreshBtn.Size = UDim2.new(1, 0, 0, 28)
+refreshBtn.Position = UDim2.new(0, 0, 1, -28)
+refreshBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
+refreshBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+refreshBtn.Text = "Refresh"
+refreshBtn.Font = Enum.Font.GothamBold
+refreshBtn.TextSize = 13
+refreshBtn.BorderSizePixel = 0
+local refreshCorner = Instance.new("UICorner", refreshBtn)
+refreshCorner.CornerRadius = UDim.new(0, 7)
+refreshBtn.MouseButton1Click:Connect(refreshPlayers)
+
+-- BOTÃO DE TELEPORTE (Tabs[3])
+local btnTP = Instance.new("TextButton", Tabs[3])
+btnTP.Size = UDim2.new(0, 200, 0, 38)
+btnTP.Position = UDim2.new(0, 10, 0, 10)
+btnTP.BackgroundColor3 = Color3.fromRGB(40, 180, 100)
+btnTP.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnTP.Text = "Tp Player"
+btnTP.Font = Enum.Font.GothamBold
+btnTP.TextSize = 17
+btnTP.BorderSizePixel = 0
+local corner = Instance.new("UICorner", btnTP)
+corner.CornerRadius = UDim.new(0, 8)
+
+btnTP.MouseButton1Click:Connect(function()
+    if selectedPlayer and selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local myChar = LocalPlayer.Character
+        local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
+        if myRoot then
+            myRoot.CFrame = selectedPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
+        end
+    else
+        warn("Selecione um jogador válido para teleportar.")
+    end
+end)
+
+local espActive = false
+local espButton = Instance.new("TextButton", Tabs[3])
+espButton.Size = UDim2.new(0, 100, 0, 38)
+espButton.Position = UDim2.new(0, 230, 0, 10) -- Agora posicionado ao lado do "Tp Player"
+espButton.BackgroundColor3 = Color3.fromRGB(40, 180, 100)
+espButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+espButton.Text = "ESP [OFF]"
+espButton.Font = Enum.Font.GothamBold
+espButton.TextSize = 17
+espButton.BorderSizePixel = 0
+Instance.new("UICorner", espButton).CornerRadius = UDim.new(0, 8)
+
+-- Função para criar ESP
+local function createESP(player)
+    if player == game.Players.LocalPlayer then return end
+    if not player.Character then return end
+    if player.Character:FindFirstChild("PlayerESP") then return end
+
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "PlayerESP"
+    highlight.FillColor = Color3.fromRGB(0, 255, 0)
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+    highlight.FillTransparency = 0.5
+    highlight.OutlineTransparency = 0
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.Adornee = player.Character
+    highlight.Parent = player.Character
+end
+
+-- Função para remover ESP
+local function removeESP(player)
+    if player.Character and player.Character:FindFirstChild("PlayerESP") then
+        player.Character.PlayerESP:Destroy()
+    end
+end
+
+-- Botão de ativar/desativar ESP
+espButton.MouseButton1Click:Connect(function()
+    espActive = not espActive
+    espButton.Text = espActive and "ESP [ON]" or "ESP [OFF]"
+
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer then
+            if espActive then
+                createESP(player)
+            else
+                removeESP(player)
+            end
+        end
+    end
+
+    if espActive then
+        game.Players.PlayerAdded:Connect(function(player)
+            player.CharacterAdded:Connect(function()
+                task.wait(1)
+                createESP(player)
+            end)
+        end)
+    end
+end)
+
 local credit = Instance.new("TextLabel", Tabs[4])
 credit.Size = UDim2.new(1,0,0,60)
 credit.Position = UDim2.new(0,0,0,20)
@@ -646,3 +812,5 @@ LocalPlayer.CharacterAdded:Connect(function()
     wait(1)
     alwaysSetJump()
 end)
+
+  
