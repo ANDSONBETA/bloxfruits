@@ -1,0 +1,106 @@
+--// JobId Joiner Hub - Compatível com KRNL
+-- Criado para Andson
+
+-- Configurações:
+local PLACE_ID = game.PlaceId -- Mantém o mesmo lugar, só muda a instância (JobId)
+
+-- Serviços
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local HttpService = game:GetService("HttpService")
+
+-- Criando ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game.CoreGui
+
+-- Frame principal
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 280, 0, 160)
+MainFrame.Position = UDim2.new(0.5, -140, 0.5, -80)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
+
+-- Bordas arredondadas
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = MainFrame
+
+-- Título
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundTransparency = 1
+Title.Text = "🔗 JobId Joiner"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+Title.Parent = MainFrame
+
+-- Caixa de texto para JobId
+local JobIdBox = Instance.new("TextBox")
+JobIdBox.Size = UDim2.new(1, -20, 0, 35)
+JobIdBox.Position = UDim2.new(0, 10, 0, 50)
+JobIdBox.PlaceholderText = "Digite o JobId aqui..."
+JobIdBox.Text = ""
+JobIdBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+JobIdBox.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+JobIdBox.BorderSizePixel = 0
+JobIdBox.Font = Enum.Font.Gotham
+JobIdBox.TextSize = 14
+JobIdBox.Parent = MainFrame
+
+local boxCorner = Instance.new("UICorner")
+boxCorner.CornerRadius = UDim.new(0, 6)
+boxCorner.Parent = JobIdBox
+
+-- Botão Join
+local JoinBtn = Instance.new("TextButton")
+JoinBtn.Size = UDim2.new(1, -20, 0, 40)
+JoinBtn.Position = UDim2.new(0, 10, 0, 100)
+JoinBtn.Text = "▶️ Entrar"
+JoinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+JoinBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+JoinBtn.BorderSizePixel = 0
+JoinBtn.Font = Enum.Font.GothamBold
+JoinBtn.TextSize = 16
+JoinBtn.Parent = MainFrame
+
+local btnCorner = Instance.new("UICorner")
+btnCorner.CornerRadius = UDim.new(0, 6)
+btnCorner.Parent = JoinBtn
+
+-- Notificação
+local function notify(msg)
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "JobId Joiner";
+        Text = msg;
+        Duration = 4;
+    })
+end
+
+-- Função para validar e entrar
+JoinBtn.MouseButton1Click:Connect(function()
+    local jobId = JobIdBox.Text
+    if jobId == "" then
+        notify("⚠️ Digite um JobId.")
+        return
+    end
+
+    -- Tentar validar
+    local success, err = pcall(function()
+        TeleportService:TeleportToPlaceInstance(PLACE_ID, jobId, LocalPlayer)
+    end)
+
+    if success then
+        notify("🔄 Teleportando...")
+    else
+        if tostring(err):find("Join failure") then
+            notify("❌ JobId inválido ou servidor cheio.")
+        else
+            notify("❌ Erro: " .. tostring(err))
+        end
+    end
+end)
